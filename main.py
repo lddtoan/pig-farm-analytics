@@ -2,6 +2,7 @@ import locale
 import os
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 from pathlib import Path
 
@@ -175,6 +176,13 @@ def _aggregate_corr(data_rep1: list, data_rep2: list, sim: list, prefix='', type
     print(f'Avg {type} {prefix.upper()} Correlation Total: {(sum(corr1) / len(corr1) + sum(corr2) / len(corr2)) / 2}')
 
 
+def _diff_cfi(cfi: pd.DataFrame):
+    x = np.arange(0, len(cfi))
+    m, c = np.polyfit(x, cfi, 1)
+    target = pd.Series(m * x + c)
+    return cfi - target
+
+
 def _calc_corr():
     data = pd.read_csv(DATA)
 
@@ -231,33 +239,33 @@ def _calc_corr():
     print('\n')
     print('-----')
     _aggregate_corr(
-        [d.cumsum() for d in cc_data_rep1],
-        [d.cumsum() for d in cc_data_rep2],
-        [d.cumsum() for d in cc_sim],
+        [_diff_cfi(d.cumsum()) for d in cc_data_rep1],
+        [_diff_cfi(d.cumsum()) for d in cc_data_rep2],
+        [_diff_cfi(d.cumsum()) for d in cc_sim],
         prefix='cc',
         type='CFI'
     )
     print('-----')
     _aggregate_corr(
-        [d.cumsum() for d in dc_data_rep1],
-        [d.cumsum() for d in dc_data_rep2],
-        [d.cumsum() for d in dc_sim],
+        [_diff_cfi(d.cumsum()) for d in dc_data_rep1],
+        [_diff_cfi(d.cumsum()) for d in dc_data_rep2],
+        [_diff_cfi(d.cumsum()) for d in dc_sim],
         prefix='dc',
         type='CFI'
     )
     print('-----')
     _aggregate_corr(
-        [d.cumsum() for d in cd_data_rep1],
-        [d.cumsum() for d in cd_data_rep2],
-        [d.cumsum() for d in cd_sim],
+        [_diff_cfi(d.cumsum()) for d in cd_data_rep1],
+        [_diff_cfi(d.cumsum()) for d in cd_data_rep2],
+        [_diff_cfi(d.cumsum()) for d in cd_sim],
         prefix='cd',
         type='CFI'
     )
     print('-----')
     _aggregate_corr(
-        [d.cumsum() for d in dd_data_rep1],
-        [d.cumsum() for d in dd_data_rep2],
-        [d.cumsum() for d in dd_sim],
+        [_diff_cfi(d.cumsum()) for d in dd_data_rep1],
+        [_diff_cfi(d.cumsum()) for d in dd_data_rep2],
+        [_diff_cfi(d.cumsum()) for d in dd_sim],
         prefix='dd',
         type='CFI'
     )
